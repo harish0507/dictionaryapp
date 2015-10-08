@@ -35,9 +35,10 @@
 	    </ul>
     </div>
     <div id="selectedWordContent" data-ng-hide="displaySelectedWord">
+		<audio id="audio" preload="auto" src=""></audio>
         <label for="selectedWord">Selected Word: </label>
         <span id="selectedWord">{{ selectedWord }}</span>
-		<button class='btn btn-info margin' onclick="document.getElementsByTagName('audio').play()" title="Play Audio">
+		<button class='btn btn-info margin' data-ng-disabled="audioCheck" onclick="document.getElementById('audio').play()" title="Play Audio">
 			<span class="glyphicon glyphicon-play"></span> Audio
 		</button>
         <button class='btn btn-info margin' data-ng-click="saveBookmark()" title="Bookmark Word">
@@ -91,7 +92,6 @@
 			$scope.currentPage = 1;
   			$scope.pageSize = 10;
             $scope.displaySelectedWord = true;
-            $scope.audioUrl = "";
             //htttp get request for api hits
             $http.get("script/dictionary.php?type=json&query=api_hits").success(function(response) {
                 $scope.apiHitsCount = response.api_hits;
@@ -115,10 +115,21 @@
             });
             //displays selected word
             $scope.showSelectedWord = function(word) {
-                //creating audio tag for the selected word
-                var audio = document.createElement("audio");
-                audio.setAttribute("src", word.audio_url);
-                document.getElementById("selectedWordContent").appendChild(audio);
+				//creating audio tag for the selected word		
+				$scope.audioCheck = true;
+				var text = word.word.trim().replace(/[^\w\s]/gi, ' ').split(" ");
+				var formatted_text = [];
+				for(var str in text) {
+					formatted_text.push(text[str].toLowerCase());
+				}
+				
+				var url = "http://vaas.acapela-group.com/Services/UrlMaker.json?cl_login=EVAL_VAAS&cl_app=EVAL_8101870&cl_pwd=kktgikd5&req_voice=sharon22k&req_text=" + formatted_text.join("+");
+				$http.get(url).success(function(data) {
+					if (data.res === "OK") {
+						jQuery("#audio").attr("src", data.snd_url);
+						$scope.audioCheck = false;
+					}
+				});
                 
                 $scope.selectedWord = word.word;
                 $scope.selectedWordDescription = word.description;
