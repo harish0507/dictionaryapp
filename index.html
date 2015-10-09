@@ -74,12 +74,12 @@
             	<li class="list-group-item active">Bookmark History</li>
                 <li class="list-group-item" data-ng-repeat="bookmark in bookmarks">{{ bookmark.word }}</li>
             </ul>
-            <form action="script/export_bookmarks.php">
-                <button class="btn btn-primary margin" type="submit">
+            <form action="script/export_bookmarks.php" method="post">
+                <button class="btn btn-primary margin" data-ng-disabled="bookmarkFlag" type="submit">
 					<span class="glyphicon glyphicon-download-alt"></span> Download Bookmark
 				</button>
             </form>
-            <button class="btn btn-info margin" data-ng-click="emptyBookmarks()">
+            <button class="btn btn-info margin" data-ng-disabled="bookmarkFlag" data-ng-click="emptyBookmarks()">
 				<span class="glyphicon glyphicon-trash"></span> Clear History
 			</button>
         </div>

@@ -1,13 +1,13 @@
 <?php
 
-require_once("remote_db.php");
+require_once("db.php");
 
 $sql = "SELECT * FROM bookmarks";
 $result = $con->query($sql);
-$data = "\"Sl.No\",\"Word\",\"Description\"\n";
+$data = "\"Sl.No\",\"Word\"\n";
 $count = 1;
 while($value = mysqli_fetch_array($result)) {
-    $data .= "\"{$count}\",\"{$value['word']}\",\"{$value['description']}\"\n";
+    $data .= "\"{$count}\",\"{$value['word']}\"\n";
     $count++;
 }
 

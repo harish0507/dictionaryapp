@@ -1,6 +1,7 @@
 //Angular js app
 var app = angular.module('dictionaryApp', ['angularUtils.directives.dirPagination']);
 
+//app controller definition
 function wordsController($scope, $http) {
     $scope.currentPage = 1;
     $scope.pageSize = 10;
@@ -10,9 +11,21 @@ function wordsController($scope, $http) {
         $scope.apiHitsCount = response.api_hits;
     });
     //htttp get request for bookmarks from backend
-    $http.get(window.location.href + "script/get_bookmarks.php").success(function(response) {
-        $scope.bookmarkCount = response.length;
-        $scope.bookmarks = response;
+    $http.get(window.location.href + "script/get_bookmarks.php").then(function(response) {
+        if (response.data.length != 0) {
+            $scope.bookmarkCount = response.data.length;
+            $scope.bookmarks = response.data;
+            $scope.bookmarkFlag = false;
+        } else {
+            $scope.bookmarkCount = 0;
+            $scope.bookmarks = [{word: "No bookmarks found!"}];
+            $scope.bookmarkFlag = true;
+        }
+    }, function(response) {
+        $scope.bookmarkCount = 0;
+        $scope.bookmarks = [{word: "No data found!"}];
+        $scope.bookmarkFlag = true;
+        console.log("Failed to get data from database!");
     });
     //http get request for words
     $http.get("script/dictionary.php?type=json&query=A").success(function(response) {
@@ -54,13 +67,14 @@ function wordsController($scope, $http) {
             method: "post",
             url: window.location.href + "script/add_bookmark.php",
             data: {
-                word: $scope.selectedWord,
-                description: $scope.selectedWordDescription
+                word: $scope.selectedWord
             },
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
-        request.success(function(data) {
+        request.then(function(data) {
             location.reload();
+        }, function(data) {
+            console.log("Failed to save data in database!");
         });
     };
     //deletes all the bookmarks from backend via http post request
@@ -70,11 +84,13 @@ function wordsController($scope, $http) {
             url: window.location.href + "script/delete_bookmarks.php",
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
-        request.success(function(data) {
+        request.then(function(data) {
             location.reload();
+        }, function(data) {
+            console.log("Failed to delete data on database!");
         });
     };
 }
 
-//app controller
+//app controller declaration
 app.controller('wordsController', ["$scope", "$http", wordsController]);
